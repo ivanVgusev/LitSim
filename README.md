@@ -1,0 +1,1 @@
+A python project that aims to measure statistical similarity between different texts of one author in order to build an author-recogniser (which would attribute texts into the same clusters or different ones).

@@ -2,7 +2,7 @@ import nltk
 import string
 from collections import Counter
 import math
-from statistical_methods.statistical_similarity import jaccard, tanimoto
+from statistical_methods import jaccard, tanimoto
 
 
 def reader(file, encoding='utf-8'):

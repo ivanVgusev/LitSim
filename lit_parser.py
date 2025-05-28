@@ -64,6 +64,7 @@ def similarity_measurer(litcorpus1: dict, litcorpus2: dict, N) -> dict:
             # tanimoto ngram_counter similarity measures weighted vectors i.e. ngram counters
             tanimoto_ngram_counter_similarity = tanimoto(ngram_counter_1, ngram_counter_2)
 
+            # excluding text == text situations
             if jaccard_ngram_similarity and jaccard_vocab_similarity and tanimoto_ngram_counter_similarity == 1.0:
                 continue
 

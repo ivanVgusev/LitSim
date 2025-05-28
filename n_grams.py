@@ -2,7 +2,6 @@ import nltk
 import string
 from collections import Counter
 import math
-from statistical_methods import jaccard, tanimoto
 
 
 def reader(file, encoding='utf-8'):
@@ -71,17 +70,9 @@ def get_sentence_probability(sentence, ngram_counter, n_1gram_counter, vocab):
     return sentence_probability
 
 
-def n_grams_main(data_1, data_2, N):
-    sentences_1 = make_sentence_list(data_1, N)
-    sentences_2 = make_sentence_list(data_2, N)
+def n_grams_main(data, N):
+    sentences = make_sentence_list(data, N)
+    ngram_counter, n_1gram_counter, vocab = get_ngram_dict(sentences, N)
+    n_gram = set([item for i in sentences for item in get_n_grams_for_sentence(i, N)])
 
-    ngram_counter_1, n_1gram_counter_1, vocab_1 = get_ngram_dict(sentences_1, N)
-    ngram_counter_2, n_1gram_counter_2, vocab_2 = get_ngram_dict(sentences_2, N)
-
-    n_gram_1 = set([item for i in sentences_1 for item in get_n_grams_for_sentence(i, N)])
-    n_gram_2 = set([item for i in sentences_2 for item in get_n_grams_for_sentence(i, N)])
-
-    jaccard_similarity = jaccard(n_gram_1, n_gram_2)
-    tanimoto_similarity = tanimoto(ngram_counter_1, ngram_counter_2)
-
-    return jaccard_similarity, tanimoto_similarity
+    return [ngram_counter, vocab, n_gram]

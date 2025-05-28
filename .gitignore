@@ -174,3 +174,7 @@ cython_debug/
 .pypirc
 
 literature/
+results/
+test.py
+.DS_Store
+.idea/

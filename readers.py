@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 NSMAP = {'fictionbook': 'http://www.gribuser.ru/xml/fictionbook/2.0'}
 
 
-def detect_encoding(file_path):
+def detect_encoding(file_path: str):
     encoding = "utf-8"
     try:
         l = open(file_path, 'r', encoding='utf-8').read()
@@ -22,7 +22,7 @@ def detect_encoding(file_path):
     return encoding
 
 
-def fb2reader(fb2_filepath):
+def fb2reader(fb2_filepath: str):
     tree = etree.parse(fb2_filepath)
     t_root = tree.getroot()
 
@@ -36,13 +36,19 @@ def fb2reader(fb2_filepath):
     return book
 
 
-def txt_reader(txt_filepath):
+def txt_linesreader(txt_filepath: str) -> list:
     encoding = detect_encoding(txt_filepath)
     with open(txt_filepath, 'r', encoding=encoding) as f:
         return f.readlines()
 
 
-def epub_reader(epub_filepath):
+def txt_reader(txt_filepath: str) -> str:
+    encoding = detect_encoding(txt_filepath)
+    with open(txt_filepath, 'r', encoding=encoding) as f:
+        return f.read()
+
+
+def epub_reader(epub_filepath: str):
     try:
         encoding = detect_encoding(epub_filepath)
 

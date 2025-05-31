@@ -2,6 +2,7 @@ import nltk
 import string
 from collections import Counter
 import math
+from string_cleaner import punctuation_cleaning
 
 
 def reader(file, encoding='utf-8'):
@@ -24,10 +25,12 @@ def make_sentence_list(texts, N):
     for text in texts:
         sentences = nltk.tokenize.sent_tokenize(text)
         for sentence in sentences:
+            sentence = str('<s> ' * N_1 + punctuation_cleaning(sentence) + ' </s>')
+            sentence = sentence.lower().split()
+
             if len(sentence) == 0:
                 continue
-            sentence = '<s> ' * N_1 + sentence.translate(str.maketrans("", "", string.punctuation)) + ' </s>'
-            sentence = sentence.lower().split()
+
             result_sentences.append(sentence)
     return result_sentences
 

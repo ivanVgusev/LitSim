@@ -47,8 +47,9 @@ def text_normaliser(m_path, lit_folder_name):
             if not os.path.exists(normalised_path):
                 yet_to_normalise += 1
             else:
-                basename = os.path.basename(normalised_path)[1]
-                already_normalised.append(basename)
+                # basename = os.path.basename(normalised_path)[1]
+                # already_normalised.append(basename)[[
+                already_normalised.append(file)
 
     if yet_to_normalise == 0:
         return print("[text_normaliser] /// All the texts have already been normalised, so we're good to go!")
@@ -62,6 +63,7 @@ def text_normaliser(m_path, lit_folder_name):
                     continue
                 if file in already_normalised:
                     continue
+
                 # progress bar updating
                 iteration_counter += 1
                 progress_bar(yet_to_normalise, iteration_counter)
@@ -303,4 +305,4 @@ for congfig in config_combinations:
     wholesale_processing_auth1_auth1(main_path, literature_folder_name, N_config, normalisation_config)
 end_time = time.time()
 
-print(f'Achieved in: {end_time - start_time}')
+print(f'Achieved in: {end_time - start_time // 60} minutes and {end_time - start_time % 60} seconds.')

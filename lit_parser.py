@@ -12,6 +12,9 @@ from pathlib import Path
 import itertools
 
 
+morph = pymorphy2.MorphAnalyzer()
+
+
 def txt_writer(data, filepath, encoding='utf-8'):
     if type(data) is not str:
         data = str(data)
@@ -23,7 +26,24 @@ def txt_writer(data, filepath, encoding='utf-8'):
         f.write(data)
 
 
-def text_normaliser(m_path, lit_folder_name):
+def text_normaliser(text):
+    normalised_text = ''
+    for lines in text:
+        sentences = nltk.tokenize.sent_tokenize(lines, "russian")
+        for sentence in sentences:
+            sentence = str(complex_cleaner(sentence))
+            sentence = sentence.lower()
+            sentence = nltk.tokenize.word_tokenize(sentence, "russian")
+
+            if len(sentence) == 0:
+                continue
+            normalised_sentence = [morph.parse(i)[0].normal_form for i in sentence]
+            normalised_text += ' '.join(normalised_sentence) + ' '
+
+    return normalised_text
+
+
+def corpus_normaliser(m_path, lit_folder_name):
     inp_path = str(os.path.join(m_path, lit_folder_name))
     normalised_literature_folder = str(os.path.join(m_path, f'{lit_folder_name}_normalised'))
     os.makedirs(os.path.join(normalised_literature_folder), exist_ok=True)
@@ -52,9 +72,9 @@ def text_normaliser(m_path, lit_folder_name):
                 already_normalised.append(file)
 
     if yet_to_normalise == 0:
-        return print("[text_normaliser] /// All the texts have already been normalised, so we're good to go!")
+        return print("[corpus_normaliser] /// All the texts have already been normalised, so we're good to go!")
     else:
-        print(f'[text_normaliser] /// Looks like we need to normalise {yet_to_normalise} text(s)')
+        print(f'[corpus_normaliser] /// Looks like we need to normalise {yet_to_normalise} text(s)')
         iteration_counter = 0
 
         for root, _, files in os.walk(inp_path):
@@ -98,18 +118,7 @@ def text_normaliser(m_path, lit_folder_name):
                 else:
                     continue
 
-                normalised_text = ''
-                for lines in text:
-                    sentences = nltk.tokenize.sent_tokenize(lines, "russian")
-                    for sentence in sentences:
-                        sentence = str(complex_cleaner(sentence))
-                        sentence = sentence.lower()
-                        sentence = nltk.tokenize.word_tokenize(sentence, "russian")
-
-                        if len(sentence) == 0:
-                            continue
-                        normalised_sentence = [morph.parse(i)[0].normal_form for i in sentence]
-                        normalised_text += ' '.join(normalised_sentence) + ' '
+                normalised_text = text_normaliser(text)
 
                 os.makedirs(full_normalised_path_no_basename, exist_ok=True)
 
@@ -203,7 +212,7 @@ def auth1_auth2(author_folder_filepath1, author_folder_filepath2, N):
 def wholesale_processing_auth1_auth1(m_path, lit_folder_name, N, normalised=True):
     inp_path = str(os.path.join(m_path, lit_folder_name))
     if normalised:
-        text_normaliser(m_path, lit_folder_name)
+        corpus_normaliser(m_path, lit_folder_name)
         inp_path = str(os.path.join(m_path, f'{lit_folder_name}_normalised'))
     author_directories = os.listdir(inp_path)
     n = len(author_directories)
@@ -237,7 +246,7 @@ def wholesale_processing_auth1_auth2(m_path, lit_folder_name, N, normalised=True
     inp_path = str(os.path.join(m_path, lit_folder_name))
 
     if normalised:
-        text_normaliser(m_path, lit_folder_name)
+        corpus_normaliser(m_path, lit_folder_name)
         inp_path = str(os.path.join(m_path, f'{lit_folder_name}_normalised'))
 
     author_directories = os.listdir(inp_path)
@@ -284,25 +293,24 @@ def wholesale_processing_auth1_auth2(m_path, lit_folder_name, N, normalised=True
             analysed_author_pairs.append(sorted([folder1, folder2]))
 
 
-morph = pymorphy2.MorphAnalyzer()
-try:
-    nltk.data.find('tokenizers/punkt_tab')
-except LookupError:
-    nltk.download('punkt_tab')
+def corpus_processing():
+    try:
+        nltk.data.find('tokenizers/punkt_tab')
+    except LookupError:
+        nltk.download('punkt_tab')
 
-main_path = os.path.join("/Users", "ivanguseff", "PycharmProjects", "LitSim")
-literature_folder_name = 'literature'
+    main_path = os.path.join("/Users", "ivanguseff", "PycharmProjects", "LitSim")
+    literature_folder_name = 'literature'
 
-# main reacher
-start_time = time.time()
-n_grams_confing = [2, 3, 4]
-normalisation_confing = [True, False]
-config_combinations = itertools.product(n_grams_confing, normalisation_confing)
-for congfig in config_combinations:
-    N_config = congfig[0]
-    normalisation_config = congfig[1]
-    wholesale_processing_auth1_auth2(main_path, literature_folder_name, N_config, normalisation_config)
-    wholesale_processing_auth1_auth1(main_path, literature_folder_name, N_config, normalisation_config)
-end_time = time.time()
-
-print(f'Achieved in: {end_time - start_time // 60} minutes and {end_time - start_time % 60} seconds.')
+    # main reacher
+    start_time = time.time()
+    n_grams_confing = [2, 3, 4]
+    normalisation_confing = [True, False]
+    config_combinations = itertools.product(n_grams_confing, normalisation_confing)
+    for congfig in config_combinations:
+        N_config = congfig[0]
+        normalisation_config = congfig[1]
+        wholesale_processing_auth1_auth2(main_path, literature_folder_name, N_config, normalisation_config)
+        wholesale_processing_auth1_auth1(main_path, literature_folder_name, N_config, normalisation_config)
+    end_time = time.time()
+    print(f'Achieved in: {end_time - start_time // 60} minutes and {end_time - start_time % 60} seconds.')

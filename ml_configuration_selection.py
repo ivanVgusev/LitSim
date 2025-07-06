@@ -8,6 +8,7 @@ import numpy as np
 
 from readers import txt_linesreader
 import os
+import statistics
 
 """
 0 - same author
@@ -16,7 +17,24 @@ import os
 
 clf = DecisionTreeClassifier()
 
-path = '/Users/ivanguseff/PycharmProjects/LitSim/results_normalised/N=3/'
+
+def training(author1_author1, author1_author2):
+    data_x = author1_author1 + author1_author2
+    data_y = [0 for _ in range(len(auth1_auth1))] + [1 for _ in range(len(auth1_auth2))]
+    x_train, x_test, y_train, y_test = train_test_split(data_x, data_y, test_size=0.2)
+
+    clf.fit(x_train, y_train)
+    y_prediction = clf.predict(x_test)
+
+    accuracy_s = accuracy_score(y_test, y_prediction)
+    precision_s = precision_score(y_test, y_prediction)
+    recall_s = recall_score(y_test, y_prediction)
+    conf_matrix_s = confusion_matrix(y_test, y_prediction)
+
+    return accuracy_s, precision_s, recall_s, conf_matrix_s
+
+
+path = '/Users/ivanguseff/PycharmProjects/LitSim/results_normalised/N=4/'
 auth1_auth1 = []
 auth1_auth2 = []
 
@@ -24,7 +42,6 @@ for root, _, files in os.walk(path):
     for file in files:
         if file.startswith('.'):
             continue
-        # print(root)
         stats = txt_linesreader(root + '/' + file)[0]
         stats = eval(stats)
         if 'auth1–auth1' in root:
@@ -36,18 +53,17 @@ for root, _, files in os.walk(path):
             book_values = [list(i.values()) for i in book_values]
             auth1_auth2.extend(book_values)
 
-data_x = auth1_auth1 + auth1_auth2
-data_y = [0 for i in range(len(auth1_auth1))] + [1 for i in range(len(auth1_auth2))]
-x_train, x_test, y_train, y_test = train_test_split(data_x, data_y, test_size=0.2)
 
-clf.fit(x_train, y_train)
-y_prediction = clf.predict(x_test)
+accuracy = []
+precision = []
+recall = []
+conf_matrix = []
+for i in range(100):
+    accuracy.append(training(auth1_auth1, auth1_auth2)[0])
+    precision.append(training(auth1_auth1, auth1_auth2)[1])
+    recall.append(training(auth1_auth1, auth1_auth2)[2])
+    conf_matrix.append(training(auth1_auth1, auth1_auth2)[3])
 
-accuracy = accuracy_score(y_test, y_prediction)
-precision = precision_score(y_test, y_prediction)
-recall = recall_score(y_test, y_prediction)
-conf_matrix = confusion_matrix(y_test, y_prediction)
-
-print('Accuracy:', accuracy)
-print('Precision:', precision)
-print('Recall:', recall)
+print('Accuracy:', statistics.mean(accuracy))
+print('Precision:', statistics.mean(precision))
+print('Recall:', statistics.mean(recall))

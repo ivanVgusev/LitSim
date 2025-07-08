@@ -1,7 +1,6 @@
 import os
 from n_grams import n_grams_main
-from readers import fb2reader, txt_linesreader
-import time
+from readers import fb2reader, txt_linesreader, epub_reader
 from statistical_methods import jaccard, tanimoto
 from progress_monitor import progress_bar
 import math
@@ -149,6 +148,14 @@ def text_fetcher(repo_path: str) -> dict:
                     # print(f'An error {e} occurred!')
                     continue
 
+            elif file.endswith('.epub'):
+                try:
+                    text = epub_reader(full_path)
+                    litcorpus.update({file: text})
+                except Exception as e:
+                    # print(f'An error {e} occurred!')
+                    continue
+
     return litcorpus
 
 
@@ -214,6 +221,7 @@ def wholesale_processing_auth1_auth1(m_path, lit_folder_name, N, normalised=True
     if normalised:
         corpus_normaliser(m_path, lit_folder_name)
         inp_path = str(os.path.join(m_path, f'{lit_folder_name}_normalised'))
+
     author_directories = os.listdir(inp_path)
     n = len(author_directories)
     if '.DS_Store' in author_directories:
@@ -237,9 +245,9 @@ def wholesale_processing_auth1_auth1(m_path, lit_folder_name, N, normalised=True
 
         output_path = os.path.join(output_path, f'{basename}–{basename}.txt')
 
-        stats = auth1_auth1(folder_full_path, N)
-
-        txt_writer(stats, output_path)
+        if not os.path.exists(output_path):
+            stats = auth1_auth1(folder_full_path, N)
+            txt_writer(stats, output_path)
 
 
 def wholesale_processing_auth1_auth2(m_path, lit_folder_name, N, normalised=True):
@@ -267,7 +275,7 @@ def wholesale_processing_auth1_auth2(m_path, lit_folder_name, N, normalised=True
                 continue
             if folder1 == folder2:
                 continue
-            # checking the auth1–auth2, auth2–auth1 situations
+            # checking the (auth1–auth2, auth2–auth1) situations
             # i.e. when the combination appears two times but with different element placements
             if sorted([folder1, folder2]) in analysed_author_pairs:
                 continue
@@ -276,7 +284,6 @@ def wholesale_processing_auth1_auth2(m_path, lit_folder_name, N, normalised=True
             folder2_full_path = os.path.join(inp_path, folder2)
             basename1 = os.path.basename(folder1_full_path)
             basename2 = os.path.basename(folder2_full_path)
-
             if normalised:
                 output_path = os.path.join(m_path, 'results_normalised', f'N={N}', 'auth1–auth2')
             else:
@@ -286,31 +293,30 @@ def wholesale_processing_auth1_auth2(m_path, lit_folder_name, N, normalised=True
 
             output_path = os.path.join(output_path, f'{basename1}–{basename2}.txt')
 
-            stats = auth1_auth2(folder1_full_path, folder2_full_path, N)
+            if not os.path.exists(output_path):
+                stats = auth1_auth2(folder1_full_path, folder2_full_path, N)
+                txt_writer(stats, output_path)
+                analysed_author_pairs.append(sorted([folder1, folder2]))
 
-            txt_writer(stats, output_path)
 
-            analysed_author_pairs.append(sorted([folder1, folder2]))
-
-
-def corpus_processing():
+def corpus_processing(main_path, literature_folder_name):
     try:
         nltk.data.find('tokenizers/punkt_tab')
     except LookupError:
         nltk.download('punkt_tab')
 
-    main_path = os.path.join("/Users", "ivanguseff", "PycharmProjects", "LitSim")
-    literature_folder_name = 'literature'
-
-    # main reacher
-    start_time = time.time()
     n_grams_confing = [2, 3, 4]
     normalisation_confing = [True, False]
     config_combinations = itertools.product(n_grams_confing, normalisation_confing)
     for congfig in config_combinations:
         N_config = congfig[0]
         normalisation_config = congfig[1]
-        wholesale_processing_auth1_auth2(main_path, literature_folder_name, N_config, normalisation_config)
+        print(f'[corpus_processing] /// N={N_config}, normalisation={normalisation_config}')
+
         wholesale_processing_auth1_auth1(main_path, literature_folder_name, N_config, normalisation_config)
-    end_time = time.time()
-    print(f'Achieved in: {end_time - start_time // 60} minutes and {end_time - start_time % 60} seconds.')
+        wholesale_processing_auth1_auth2(main_path, literature_folder_name, N_config, normalisation_config)
+
+
+# path = os.path.join("/Users", "ivanguseff", "PycharmProjects", "LitSim")
+# literature_folder = 'literature'
+# corpus_processing(path, literature_folder)

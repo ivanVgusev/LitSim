@@ -52,8 +52,8 @@ The system uses n-gram analysis combined with Jaccard and Tanimoto similarity me
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/litsim.git
-   cd litsim
+   git clone https://github.com/ivanVgusev/LitSim.git
+   cd LitSim
    
 2. Install dependencies:
     ```bash
@@ -103,7 +103,6 @@ The system can be configured through several parameters:
 |--------------------|------------------|-------------|
 | N-gram size        | 2, 3, 4          | The length of word sequences to analyze |
 | Normalization      | True/False       | Whether to lemmatize and normalize text |
-| Similarity Measures| Jaccard, Tanimoto| Which statistical methods to use |
 
 Example configurations are provided in the Configuration_comparison.xlsx file.
 
@@ -175,9 +174,9 @@ Performance metrics from sample runs (see Configuration_comparison.xlsx):
 Contributions are welcome! Please fork the repository and submit a pull request with your improvements.
 
 1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create your feature branch (`git checkout -b feature/YourFeature`)
+3. Commit your changes (`git commit -m 'Add YourFeature'`)
+4. Push to the branch (`git push origin feature/YourFeature`)
 5. Open a Pull Request
 
 ## License

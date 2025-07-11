@@ -120,9 +120,9 @@ def measure_model_performance(author1_author1_data, author1_author2_data, n_tria
 #     path = '/Users/ivanguseff/PycharmProjects/LitSim/'
 #
 #     if config[1] is True:
-#         path = os.path.join(path, 'results_normalised', f'N={config[0]}')
+#         path = os.path.join(path, 'values_normalised', f'N={config[0]}')
 #     else:
-#         path = os.path.join(path, 'results', f'N={config[0]}')
+#         path = os.path.join(path, 'values', f'N={config[0]}')
 #
 #     vectors_auth1_auth_1, vectors_auth1_auth_2 = (
 #         load_feature_vectors(path))

@@ -47,9 +47,9 @@ def compare_authors(file1_path, file2_path, stats_path, n=3, normalise=False):
     test_features = [extract_features(book1, book2, n=n, normalise=normalise)]
 
     if normalise is True:
-        stats_path += 'results_normalised/'
+        stats_path += 'values_normalised/'
     elif normalise is False:
-        stats_path += 'results/'
+        stats_path += 'values/'
     stats_path += f'N={n}/'
 
     auth1_data, auth2_data = load_training_data(stats_path)

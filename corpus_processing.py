@@ -237,9 +237,9 @@ def wholesale_processing_auth1_auth1(m_path, lit_folder_name, N, normalised=True
         basename = os.path.basename(folder_full_path)
 
         if normalised:
-            output_path = os.path.join(m_path, 'results_normalised', f'N={N}', 'auth1–auth1')
+            output_path = os.path.join(m_path, 'values_normalised', f'N={N}', 'auth1–auth1')
         else:
-            output_path = os.path.join(m_path, 'results', f'N={N}', 'auth1–auth1')
+            output_path = os.path.join(m_path, 'values', f'N={N}', 'auth1–auth1')
 
         os.makedirs(output_path, exist_ok=True)
 
@@ -285,9 +285,9 @@ def wholesale_processing_auth1_auth2(m_path, lit_folder_name, N, normalised=True
             basename1 = os.path.basename(folder1_full_path)
             basename2 = os.path.basename(folder2_full_path)
             if normalised:
-                output_path = os.path.join(m_path, 'results_normalised', f'N={N}', 'auth1–auth2')
+                output_path = os.path.join(m_path, 'values_normalised', f'N={N}', 'auth1–auth2')
             else:
-                output_path = os.path.join(m_path, 'results', f'N={N}', 'auth1–auth2')
+                output_path = os.path.join(m_path, 'values', f'N={N}', 'auth1–auth2')
 
             os.makedirs(output_path, exist_ok=True)
 

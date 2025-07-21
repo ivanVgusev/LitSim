@@ -21,7 +21,7 @@ def jaccard(a: set, b: set) -> float:
     """
     intersection = a.intersection(b)
     union = a.union(b)
-    return len(intersection) / len(union)
+    return len(intersection) / len(union) if union else 0.0
 
 
 def ttest_independent(list_1, list_2):

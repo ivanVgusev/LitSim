@@ -1,130 +1,30 @@
-import os
-from n_grams import n_grams_main
-from readers import fb2reader, txt_linesreader, epub_reader
-from statistical_methods import jaccard, tanimoto
-from progress_monitor import progress_bar
-import math
-import pymorphy2
-import nltk
+from writers_and_readers import txt_writer, fb2reader, txt_reader, epub_reader
 from string_cleaner import complex_cleaner
-from pathlib import Path
+from statistical_methods import jaccard, tanimoto
+from n_grams import n_grams_main
+
+import nltk
+import pymorphy2
+
+import os
 import itertools
+import math
+
+from progress_monitor import progress_bar
 
 
 morph = pymorphy2.MorphAnalyzer()
 
 
-def txt_writer(data, filepath, encoding='utf-8'):
-    if type(data) is not str:
-        data = str(data)
-
-    if not filepath.endswith('.txt'):
-        filepath += '.txt'
-
-    with open(filepath, 'w', encoding=encoding) as f:
-        f.write(data)
-
-
-def text_normaliser(text):
-    normalised_text = ''
-    for lines in text:
-        sentences = nltk.tokenize.sent_tokenize(lines, "russian")
-        for sentence in sentences:
-            sentence = str(complex_cleaner(sentence))
-            sentence = sentence.lower()
-            sentence = nltk.tokenize.word_tokenize(sentence, "russian")
-
-            if len(sentence) == 0:
-                continue
-            normalised_sentence = [morph.parse(i)[0].normal_form for i in sentence]
-            normalised_text += ' '.join(normalised_sentence) + ' '
-
-    return normalised_text
-
-
-def corpus_normaliser(m_path, lit_folder_name):
-    inp_path = str(os.path.join(m_path, lit_folder_name))
-    normalised_literature_folder = str(os.path.join(m_path, f'{lit_folder_name}_normalised'))
-    os.makedirs(os.path.join(normalised_literature_folder), exist_ok=True)
-
-    already_normalised = []
-    yet_to_normalise = 0
-    for root, _, files in os.walk(inp_path):
-        for file in files:
-            if file.startswith('.'):
-                continue
-            path = Path(str(os.path.join(root, file)))
-            path_parts = list(path.parts)
-            lit_folder_index = path_parts.index(lit_folder_name)
-
-            pre_index = path_parts[:lit_folder_index]
-            post_index = path_parts[lit_folder_index + 1:]
-            normalised_path = os.path.join(*pre_index, f'{lit_folder_name}_normalised', *post_index)
-            if not normalised_path.endswith('.txt'):
-                normalised_path = os.path.splitext(normalised_path)[0] + '.txt'
-
-            if not os.path.exists(normalised_path):
-                yet_to_normalise += 1
-            else:
-                # basename = os.path.basename(normalised_path)[1]
-                # already_normalised.append(basename)[[
-                already_normalised.append(file)
-
-    if yet_to_normalise == 0:
-        return print("[corpus_normaliser] /// All the texts have already been normalised, so we're good to go!")
-    else:
-        print(f'[corpus_normaliser] /// Looks like we need to normalise {yet_to_normalise} text(s)')
-        iteration_counter = 0
-
-        for root, _, files in os.walk(inp_path):
-            for file in files:
-                if file.startswith('.'):
-                    continue
-                if file in already_normalised:
-                    continue
-
-                # progress bar updating
-                iteration_counter += 1
-                progress_bar(yet_to_normalise, iteration_counter)
-
-                full_non_normalised_path = os.path.join(root, file)
-                path = Path(full_non_normalised_path)
-                path_parts = list(path.parts)
-                lit_folder_index = path_parts.index(lit_folder_name)
-
-                pre_index = path_parts[:lit_folder_index]
-                post_index = path_parts[lit_folder_index + 1:]
-
-                full_normalised_path = os.path.join(*pre_index, f'{lit_folder_name}_normalised', *post_index)
-                full_normalised_path = os.path.splitext(full_normalised_path)[0]
-                path = Path(full_normalised_path)
-                path_parts = list(path.parts)
-                full_normalised_path_no_basename = path_parts[:-1]
-                full_normalised_path_no_basename = os.path.join(*full_normalised_path_no_basename)
-
-                if file.endswith('.fb2'):
-                    try:
-                        text = fb2reader(full_non_normalised_path)
-                    except Exception as e:
-                        # print(f'An error {e} occurred!')
-                        continue
-                elif file.endswith('.txt'):
-                    try:
-                        text = txt_linesreader(full_non_normalised_path)
-                    except Exception as e:
-                        # print(f'An error {e} occurred!')
-                        continue
-                else:
-                    continue
-
-                normalised_text = text_normaliser(text)
-
-                os.makedirs(full_normalised_path_no_basename, exist_ok=True)
-
-                txt_writer(normalised_text, full_normalised_path)
-
-
 def text_fetcher(repo_path: str) -> dict:
+    """
+    This function reads and formats texts, normalises them and puts into a dictionary,
+    so that it would be easily accessible.
+
+    :param repo_path: path to the folder with books
+    :return: dictionary of the form {name of the book: text}
+    """
+
     litcorpus = {}
     for root, _, files in os.walk(repo_path):
         for file in files:
@@ -135,32 +35,149 @@ def text_fetcher(repo_path: str) -> dict:
             if file.endswith('.fb2'):
                 try:
                     text = fb2reader(full_path)
+                    text = text_normalisation(text)
                     litcorpus.update({file: text})
+
                 except Exception as e:
-                    # print(f'An error {e} occurred!')
+                    print(f'An error {e} occurred!')
                     continue
 
             elif file.endswith('.txt'):
                 try:
-                    text = txt_linesreader(full_path)
+                    text = txt_reader(full_path)
+                    text = text_normalisation(text)
                     litcorpus.update({file: text})
+
                 except Exception as e:
-                    # print(f'An error {e} occurred!')
+                    print(f'An error {e} occurred!')
                     continue
 
             elif file.endswith('.epub'):
                 try:
                     text = epub_reader(full_path)
+                    text = text_normalisation(text)
                     litcorpus.update({file: text})
+
                 except Exception as e:
-                    # print(f'An error {e} occurred!')
+                    print(f'An error {e} occurred!')
                     continue
 
     return litcorpus
 
 
-# Jaccard ngrams, Jaccard vocabulary and Tanimoto ngrams counters
+def text_lemmatisation(text: str) -> str:
+    """
+    Text normalisation and lemmatisation.
+    ::param text: literature piece
+    """
+
+    if not isinstance(text, str):
+        return ''
+
+    lemmatised_text = ''
+    sentences = nltk.tokenize.sent_tokenize(text, "russian")
+    for sentence in sentences:
+        sentence = nltk.tokenize.word_tokenize(sentence, "russian")
+        if len(sentence) == 0:
+            continue
+        lemmatised_sentence = [morph.parse(i)[0].normal_form for i in sentence]
+        lemmatised_text += ' '.join(lemmatised_sentence)
+
+    return lemmatised_text
+
+
+def text_normalisation(text: str) -> str:
+    """
+    This function cleans input texts from punctuation marks and other unnecessary elements (numbers, etc.),
+    formats the text to lowercase.
+
+    :param text: book text
+    :return: normalised book text
+    """
+
+    text = complex_cleaner(text)
+    text = text.lower()
+    return text
+
+
+def corpus_lemmatisation(base_path: str, lit_folder_name: str) -> None:
+    """
+    This function applies text_lemmatisation() to the user's literature corpus while also
+    monitoring that the elements that had already been lemmatised would not be processed once again.
+
+    :param base_path: path to the directory (without the folder that stores literature)
+    :param lit_folder_name: name of the folder that stores literature
+    :return: None
+    """
+
+    # Construct the full path to the input and output directories
+    input_dir = os.path.join(base_path, lit_folder_name)
+    output_dir = os.path.join(base_path, f"{lit_folder_name}_lemmatised")
+    os.makedirs(output_dir, exist_ok=True)
+
+    files_to_normalise = []
+    for root, _, files in os.walk(input_dir):
+        for file in files:
+            if file.startswith('.'):
+                continue  # Skip hidden/system files
+
+            # Full path to the current input file
+            full_input_path = os.path.join(root, file)
+
+            # Get path relative to the literature folder (preserving subfolders)
+            rel_path = os.path.relpath(full_input_path, input_dir)
+
+            # Build corresponding output path in the lemmatised folder
+            # Ensure the output has a .txt extension
+            lemmatised_path = os.path.join(output_dir, os.path.splitext(rel_path)[0] + '.txt')
+
+            # Only add to the processing list if not already lemmatised
+            if not os.path.exists(lemmatised_path):
+                files_to_normalise.append((full_input_path, lemmatised_path))
+
+    if not files_to_normalise:
+        print("[corpus_lemmatisation] /// All the texts have already been lemmatised, so we're good to go!")
+        return
+
+    print(f"[corpus_lemmatisation] /// Looks like we need to lemmatise {len(files_to_normalise)} text(s)")
+
+    # Process each file that needs to be lemmatised
+    for idx, (src, dest) in enumerate(files_to_normalise, start=1):
+        progress_bar(len(files_to_normalise), idx)
+
+        try:
+            # Choose the appropriate reader based on file type
+            if src.endswith('.fb2'):
+                text = fb2reader(src)
+            elif src.endswith('.epub'):
+                text = epub_reader(src)
+            elif src.endswith('.txt'):
+                text = txt_reader(src)
+            else:
+                continue  # Skip unsupported file types
+        except Exception:
+            continue
+
+        # Normalise the text content
+        lemmatised_text = text_lemmatisation(text)
+
+        # Make sure the output directory exists before writing
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+
+        # Write the lemmatised content to the output file
+        txt_writer(lemmatised_text, dest)
+
+
 def similarity_measurer(litcorpus1: dict, litcorpus2: dict, N) -> dict:
+    """
+    Jaccard ngrams, Jaccard vocabulary and Tanimoto ngrams counters measuring in order to compute text similarity.
+
+    :param litcorpus1: the output dict of text_fetcher() i.e. a processed literature piece
+    :param litcorpus2: the output dict of text_fetcher() i.e. a processed literature piece
+    :param N: parameter for N-grams; in this project (N = 2; N = 3; N = 4) are conventionally used
+    :return: dict with measured similarity parameters for two literature pieces
+    """
+
     k = 2
     all_combinations = list(itertools.product(litcorpus1, litcorpus2))
     unique_combinations = len([(a, b) for a, b in all_combinations if a != b])
@@ -202,25 +219,52 @@ def similarity_measurer(litcorpus1: dict, litcorpus2: dict, N) -> dict:
     return stats_dict
 
 
-def auth1_auth1(author_folder_filepath, N):
+def auth1_auth1(author_folder_filepath: str, N: int) -> dict:
+    """
+    This function measures similarity of literature pieces written by the same author.
+
+    :param author_folder_filepath: path to the folder with author's books
+    :param N: parameter for N-grams; in this project (N = 2; N = 3; N = 4) are conventionally used
+    :return: dictionary of dictionaries;
+    {name of the book: {ngrams jaccard value: float, vocabulary jaccard value: float, ngrams tanimoto value: float}}
+    """
     corpus1 = text_fetcher(author_folder_filepath)
     corpus2 = corpus1
     stats = similarity_measurer(corpus1, corpus2, N)
     return stats
 
 
-def auth1_auth2(author_folder_filepath1, author_folder_filepath2, N):
+def auth1_auth2(author_folder_filepath1: str, author_folder_filepath2: str, N: int) -> dict:
+    """
+    This function measures similarity of literature pieces written by two different author.
+
+    :param author_folder_filepath1: path to the folder with the first author's books
+    :param author_folder_filepath2: path to the folder with the second author's books
+    :param N: parameter for N-grams; in this project (N = 2; N = 3; N = 4) are conventionally used
+    :return: dictionary of dictionaries;
+    {name of the book: {ngrams jaccard value: float, vocabulary jaccard value: float, ngrams tanimoto value: float}}
+    """
     corpus1 = text_fetcher(author_folder_filepath1)
     corpus2 = text_fetcher(author_folder_filepath2)
     stats = similarity_measurer(corpus1, corpus2, N)
     return stats
 
 
-def wholesale_processing_auth1_auth1(m_path, lit_folder_name, N, normalised=True):
-    inp_path = str(os.path.join(m_path, lit_folder_name))
-    if normalised:
-        corpus_normaliser(m_path, lit_folder_name)
-        inp_path = str(os.path.join(m_path, f'{lit_folder_name}_normalised'))
+def wholesale_processing_auth1_auth1(base_path: str, lit_folder_name: str, N: int, lemmatised: bool = True) -> None:
+    """
+    This function processes all the author's folders in the needed directory and measures author1-author1 similarity.
+
+    :param base_path: path to the directory (without the folder that stores literature)
+    :param lit_folder_name: name of the folder that stores literature
+    :param N: parameter for N-grams; in this project (N = 2; N = 3; N = 4) are conventionally used
+    :param lemmatised: True/False depending on whether lemmatisation is needed or not
+    :return: None
+    """
+
+    inp_path = str(os.path.join(base_path, lit_folder_name))
+    if lemmatised:
+        corpus_lemmatisation(base_path, lit_folder_name)
+        inp_path = str(os.path.join(base_path, f'{lit_folder_name}_lemmatised'))
 
     author_directories = os.listdir(inp_path)
     n = len(author_directories)
@@ -236,10 +280,10 @@ def wholesale_processing_auth1_auth1(m_path, lit_folder_name, N, normalised=True
         folder_full_path = os.path.join(inp_path, folder)
         basename = os.path.basename(folder_full_path)
 
-        if normalised:
-            output_path = os.path.join(m_path, 'values_normalised', f'N={N}', 'auth1–auth1')
+        if lemmatised:
+            output_path = os.path.join(base_path, 'values_lemmatised', f'N={N}', 'auth1–auth1')
         else:
-            output_path = os.path.join(m_path, 'values', f'N={N}', 'auth1–auth1')
+            output_path = os.path.join(base_path, 'values', f'N={N}', 'auth1–auth1')
 
         os.makedirs(output_path, exist_ok=True)
 
@@ -250,12 +294,22 @@ def wholesale_processing_auth1_auth1(m_path, lit_folder_name, N, normalised=True
             txt_writer(stats, output_path)
 
 
-def wholesale_processing_auth1_auth2(m_path, lit_folder_name, N, normalised=True):
-    inp_path = str(os.path.join(m_path, lit_folder_name))
+def wholesale_processing_auth1_auth2(base_path: str, lit_folder_name: str, N: int, lemmatised: bool = True) -> None:
+    """
+     This function processes all the author's folders in the needed directory and measures author1-author2 similarity.
 
-    if normalised:
-        corpus_normaliser(m_path, lit_folder_name)
-        inp_path = str(os.path.join(m_path, f'{lit_folder_name}_normalised'))
+     :param base_path: path to the directory (without the folder that stores literature)
+     :param lit_folder_name: name of the folder that stores literature
+     :param N: parameter for N-grams; in this project (N = 2; N = 3; N = 4) are conventionally used
+     :param lemmatised: True/False depending on whether lemmatisation is needed or not
+     :return: None
+     """
+
+    inp_path = str(os.path.join(base_path, lit_folder_name))
+
+    if lemmatised:
+        corpus_lemmatisation(base_path, lit_folder_name)
+        inp_path = str(os.path.join(base_path, f'{lit_folder_name}_lemmatised'))
 
     author_directories = os.listdir(inp_path)
     n = len(author_directories)
@@ -284,10 +338,11 @@ def wholesale_processing_auth1_auth2(m_path, lit_folder_name, N, normalised=True
             folder2_full_path = os.path.join(inp_path, folder2)
             basename1 = os.path.basename(folder1_full_path)
             basename2 = os.path.basename(folder2_full_path)
-            if normalised:
-                output_path = os.path.join(m_path, 'values_normalised', f'N={N}', 'auth1–auth2')
+
+            if lemmatised:
+                output_path = os.path.join(base_path, 'values_lemmatised', f'N={N}', 'auth1–auth2')
             else:
-                output_path = os.path.join(m_path, 'values', f'N={N}', 'auth1–auth2')
+                output_path = os.path.join(base_path, 'values', f'N={N}', 'auth1–auth2')
 
             os.makedirs(output_path, exist_ok=True)
 
@@ -299,24 +354,34 @@ def wholesale_processing_auth1_auth2(m_path, lit_folder_name, N, normalised=True
                 analysed_author_pairs.append(sorted([folder1, folder2]))
 
 
-def corpus_processing(main_path, literature_folder_name):
+def main_processing(base_path: str, lit_folder_name: str) -> None:
+    """
+    This function is the main one that calls wholesale_processing_auth1_auth1() and wholesale_processing_auth1_auth2().
+    It configures all possible combinations of N (2, 3, 4) and lemmatisation (True, False)
+    and measures values for such configs.
+
+    :param base_path: path to the directory (without the folder that stores literature)
+    :param lit_folder_name: name of the folder that stores literature
+    :return: None
+    """
     try:
         nltk.data.find('tokenizers/punkt_tab')
     except LookupError:
         nltk.download('punkt_tab')
 
-    n_grams_confing = [2, 3, 4]
-    normalisation_confing = [True, False]
-    config_combinations = itertools.product(n_grams_confing, normalisation_confing)
+    n_grams_configuration = [2, 3, 4]
+    lemmatisation_configuration = [True, False]
+    config_combinations = itertools.product(n_grams_configuration, lemmatisation_configuration)
+
     for congfig in config_combinations:
-        N_config = congfig[0]
-        normalisation_config = congfig[1]
-        print(f'[corpus_processing] /// N={N_config}, normalisation={normalisation_config}')
+        n_grams_config = congfig[0]
+        lemmatisation_config = congfig[1]
+        print(f'[corpus_processing] /// CONFIGURATION /// '
+              f'N={n_grams_config}, lemmatisation={lemmatisation_config}')
+        wholesale_processing_auth1_auth1(base_path, lit_folder_name, n_grams_config, lemmatisation_config)
+        wholesale_processing_auth1_auth2(base_path, lit_folder_name, n_grams_config, lemmatisation_config)
 
-        wholesale_processing_auth1_auth1(main_path, literature_folder_name, N_config, normalisation_config)
-        wholesale_processing_auth1_auth2(main_path, literature_folder_name, N_config, normalisation_config)
 
-
-# path = os.path.join("/Users", "ivanguseff", "PycharmProjects", "LitSim")
-# literature_folder = 'literature'
-# corpus_processing(path, literature_folder)
+path = os.path.join("/Users", "ivanguseff", "PycharmProjects", "LitSim")
+literature_folder = 'literature'
+main_processing(path, literature_folder)

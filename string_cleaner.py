@@ -1,21 +1,30 @@
 import string
 import re
+import unicodedata
 
 
-def complex_cleaner(sentence):
+def complex_cleaner(sentence) -> str:
     sentence = punctuation_cleaning(sentence)
     sentence = arabic_numerals_cleaner(sentence)
     sentence = roman_numerals_cleaner(sentence)
 
-    return sentence
+    return str(sentence)
 
 
-def punctuation_cleaning(sentence):
-    additional_punctuation = '«»–—[]'
-    sentence = sentence.translate(str.maketrans("", "", string.punctuation))
-    sentence = sentence.translate(str.maketrans("", "", additional_punctuation))
+def punctuation_cleaning(sentence: str) -> str:
+    cleaned = []
 
-    return sentence
+    for char in sentence:
+        if char.isspace():
+            cleaned.append(' ')
+        elif unicodedata.category(char).startswith(('P', 'S')):
+            continue
+        elif char in {'\u200b', '\ufeff'}:
+            cleaned.append(' ')
+        else:
+            cleaned.append(char)
+
+    return ' '.join(''.join(cleaned).split())
 
 
 def arabic_numerals_cleaner(sentence):

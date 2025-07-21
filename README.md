@@ -43,11 +43,6 @@ The system uses n-gram analysis combined with Jaccard and Tanimoto similarity me
   - Performance metrics (accuracy, precision, recall)
   - Pre-computed feature vectors for quick analysis
 
-- **Visualization**:
-  - Dendrograms for hierarchical clustering
-  - Histograms for distribution comparison
-  - Scatter plots for feature visualization
-
 ## Installation
 
 1. Clone the repository:
@@ -112,7 +107,7 @@ LitSim/
 ├── literature/ # Input texts (organized by author)
 ├── literature_test/ # Test texts for evaluation
 ├── values/ # Precomputed features (non-normalized)
-├── values_normalised/ # Precomputed features (normalized)
+├── values_lemmatised/ # Precomputed features (normalized)
 ├── corpus_processing.py # Text processing pipeline
 ├── main.py # Main comparison interface
 ├── ml.py # Machine learning functions

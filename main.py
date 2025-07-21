@@ -1,7 +1,7 @@
 import os
 from ml import predict
 from corpus_processing import text_normaliser
-from readers import txt_linesreader
+from writers_and_readers import txt_linesreader
 from n_grams import n_grams_main
 from statistical_methods import jaccard, tanimoto
 
@@ -47,7 +47,7 @@ def compare_authors(file1_path, file2_path, stats_path, n=3, normalise=False):
     test_features = [extract_features(book1, book2, n=n, normalise=normalise)]
 
     if normalise is True:
-        stats_path += 'values_normalised/'
+        stats_path += 'values_lemmatised/'
     elif normalise is False:
         stats_path += 'values/'
     stats_path += f'N={n}/'

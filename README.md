@@ -74,22 +74,13 @@ print("Same author" if result == [0] else "Different authors")
 
 - **Processing your own data**
 ```python
-from corpus_processing import corpus_processing
+from corpus_processing import main_processing
 
-corpus_processing(
+main_processing(
     main_path="/path/to/project/root/",
-    literature_folder_name="your_literature_folder"
+    literature_folder_name="your_literature_folder")
 ```
 
-- **Generating Visualizations**
-```python
-from plots_charts import dendrogram, histogramm
-# Example data
-values = [[0.1, 0.2], [0.15, 0.25], [0.3, 0.4]]
-names = ["Text A", "Text B", "Text C"]
-
-dendrogram(values, names, title="Text Similarity Dendrogram")
-```
 
 ## Configuration
 The system can be configured through several parameters:

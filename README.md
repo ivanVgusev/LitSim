@@ -67,7 +67,7 @@ result = compare_authors(
     "path/to/book2.txt",
     stats_path="path/to/project/root/",
     n=3,
-    normalise=False
+    lemmatise=False
 )
 print("Same author" if result == [0] else "Different authors")
 ```
@@ -77,18 +77,18 @@ print("Same author" if result == [0] else "Different authors")
 from corpus_processing import main_processing
 
 main_processing(
-    main_path="/path/to/project/root/",
-    literature_folder_name="your_literature_folder")
+    base_path="/path/to/project/root/",
+    lit_folder_name="your_literature_folder")
 ```
 
 
 ## Configuration
 The system can be configured through several parameters:
 
-| Parameter          | Options          | Description |
-|--------------------|------------------|-------------|
-| N-gram size        | 2, 3, 4          | The length of word sequences to analyze |
-| Normalization      | True/False       | Whether to lemmatize and normalize text |
+| Parameter     | Options    | Description                             |
+|---------------|------------|-----------------------------------------|
+| N-gram size   | 2, 3, 4    | The length of word sequences to analyze |
+| Lemmatisation | True/False | Whether to lemmatise text               |
 
 Example configurations are provided in the Configuration_comparison.xlsx file.
 
@@ -126,34 +126,34 @@ LitSim/
 - Decision Tree classifier trained on:
   - Positive samples (same-author comparisons)
   - Negative samples (different-author comparisons)
-- Evaluated using accuracy, precision, and recall metrics
 
 
 ## Results
 
-Performance metrics from sample runs (see Configuration_comparison.xlsx):
+Performance metrics from sample runs (mean value in 100 trials):
 
 ### Corpus 1 (4 authors, 42 books)
 
-| N | Normalized | Accuracy | Precision | Recall |
+| N | Normalised | Accuracy | Precision | Recall |
 |---|------------|----------|-----------|--------|
-| 2 | Yes        | 0.686    | 0.779     | 0.781  |
-| 2 | No         | 0.698    | 0.784     | 0.781  |
-| 3 | Yes        | 0.698    | 0.791     | 0.785  |
-| 3 | No         | 0.729    | 0.814     | 0.803  |
-| 4 | Yes        | 0.764    | 0.835     | 0.833  |
-| 4 | No         | 0.667    | 0.771     | 0.757  |
+| 2 | True       | 0.68     | 0.77      | 0.78   |
+| 2 | False      | 0.69     | 0.78      | 0.78   |
+| 3 | True       | 0.69     | 0.79      | 0.78   |
+| 3 | False      | 0.72     | 0.81      | 0.80   |
+| 4 | True       | 0.76     | 0.83      | 0.83   |
+| 4 | False      | 0.66     | 0.77      | 0.75   |
 
 ### Corpus 2 (8 authors, 69 books)
 
-| N | Normalized | Accuracy | Precision | Recall |
-|---|------------|----------|-----------|--------|
-| 2 | Yes        | 0.785    | 0.857     | 0.881  |
-| 2 | No         | 0.783    | 0.856     | 0.879  |
-| 3 | Yes        | 0.777    | 0.860     | 0.865  |
-| 3 | No         | 0.798    | 0.877     | 0.872  |
-| 4 | Yes        | 0.804    | 0.876     | 0.882  |
-| 4 | No         | 0.780    | 0.857     | 0.873  |
+| n-gram | Normalised | Accuracy | Precision | Recall |
+|--------|------------|----------|-----------|--------|
+| 2      | True       | 0.76     | 0.84      | 0.86   |
+| 2      | False      | 0.72     | 0.81      | 0.85   |
+| 3      | True       | 0.76     | 0.84      | 0.86   |
+| 3      | False      | 0.72     | 0.81      | 0.85   |
+| 4      | True       | 0.76     | 0.84      | 0.86   |
+| 4      | False      | 0.72     | 0.81      | 0.85   |
+
 
 ## Contributing
 

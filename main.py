@@ -1,15 +1,15 @@
 import os
 from ml import predict
-from corpus_processing import text_normaliser
+from corpus_processing import text_lemmatisation
 from writers_and_readers import txt_linesreader
 from n_grams import n_grams_main
 from statistical_methods import jaccard, tanimoto
 
 
-def extract_features(text1, text2, n=3, normalise=False):
-    if normalise:
-        text1 = text_normaliser(text1)
-        text2 = text_normaliser(text2)
+def extract_features(text1, text2, n=3, lemmatise=False):
+    if lemmatise:
+        text1 = text_lemmatisation(text1)
+        text2 = text_lemmatisation(text2)
 
     ngram_counter_1, vocab_1, ngram_1 = n_grams_main(text1, n)
     ngram_counter_2, vocab_2, ngram_2 = n_grams_main(text2, n)
@@ -40,15 +40,15 @@ def load_training_data(stats_path):
     return auth1_auth1, auth1_auth2
 
 
-def compare_authors(file1_path, file2_path, stats_path, n=3, normalise=False):
+def compare_authors(file1_path, file2_path, stats_path, n=3, lemmatise=False):
     book1 = txt_linesreader(file1_path)
     book2 = txt_linesreader(file2_path)
 
-    test_features = [extract_features(book1, book2, n=n, normalise=normalise)]
+    test_features = [extract_features(book1, book2, n=n, lemmatise=lemmatise)]
 
-    if normalise is True:
+    if lemmatise is True:
         stats_path += 'values_lemmatised/'
-    elif normalise is False:
+    elif lemmatise is False:
         stats_path += 'values/'
     stats_path += f'N={n}/'
 
@@ -59,11 +59,10 @@ def compare_authors(file1_path, file2_path, stats_path, n=3, normalise=False):
 
 
 if __name__ == "__main__":
-    test_folder = '/Users/ivanguseff/PycharmProjects/LitSim/literature_test/'
-    train_folder = '/Users/ivanguseff/PycharmProjects/LitSim/'
+    test_folder = os.path.join('/', 'Users', 'ivanguseff', 'PycharmProjects', 'LitSim', 'literature_test/')
+    train_folder = os.path.join('/', 'Users', 'ivanguseff', 'PycharmProjects', 'LitSim/')
 
-    file1 = os.path.join(test_folder, 'Горький_Мать.txt')
-    # file2 = os.path.join(test_folder, 'Горький_Детство_В_людях_Мои_университеты.txt')
-    file2 = os.path.join(test_folder, 'Достоевский_Подросток.txt')
+    file1 = os.path.join(test_folder, '.txt')
+    file2 = os.path.join(test_folder, '.txt')
 
-    compare_authors(file1, file2, train_folder, n=3, normalise=False)
+    compare_authors(file1, file2, train_folder, n=3, lemmatise=True)

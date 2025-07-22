@@ -5,11 +5,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 
 from itertools import product
-from readers import txt_linesreader
+from writers_and_readers import txt_linesreader
 
-# Labeling:
-# 0 - same author
-# 1 - different author
+"""
+Labeling:
+0 - same author
+1 - different author
+"""
 
 # Default classifier
 default_clf = DecisionTreeClassifier()
@@ -113,18 +115,19 @@ def measure_model_performance(author1_author1_data, author1_author2_data, n_tria
 
 
 # n = [2, 3, 4]
-# normalisation = [True, False]
-# configurations = product(n, normalisation)
+# lemmatisation = [True, False]
+# configurations = product(n, lemmatisation)
 #
 # for config in configurations:
-#     path = '/Users/ivanguseff/PycharmProjects/LitSim/'
+#     path = os.path.join('/', 'Users', 'ivanguseff', 'PycharmProjects', 'LitSim/')
 #
 #     if config[1] is True:
-#         path = os.path.join(path, 'values_normalised', f'N={config[0]}')
+#         path = os.path.join(path, 'values_lemmatised', f'N={config[0]}')
 #     else:
 #         path = os.path.join(path, 'values', f'N={config[0]}')
 #
 #     vectors_auth1_auth_1, vectors_auth1_auth_2 = (
 #         load_feature_vectors(path))
-#     print(config)
-#     print(measure_model_performance(vectors_auth1_auth_1, vectors_auth1_auth_2))
+
+    # print(config)
+    # print(measure_model_performance(vectors_auth1_auth_1, vectors_auth1_auth_2))

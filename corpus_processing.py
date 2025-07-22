@@ -115,7 +115,7 @@ def corpus_lemmatisation(base_path: str, lit_folder_name: str) -> None:
     output_dir = os.path.join(base_path, f"{lit_folder_name}_lemmatised")
     os.makedirs(output_dir, exist_ok=True)
 
-    files_to_normalise = []
+    files_to_lemmatise = []
     for root, _, files in os.walk(input_dir):
         for file in files:
             if file.startswith('.'):
@@ -133,17 +133,17 @@ def corpus_lemmatisation(base_path: str, lit_folder_name: str) -> None:
 
             # Only add to the processing list if not already lemmatised
             if not os.path.exists(lemmatised_path):
-                files_to_normalise.append((full_input_path, lemmatised_path))
+                files_to_lemmatise.append((full_input_path, lemmatised_path))
 
-    if not files_to_normalise:
+    if not files_to_lemmatise:
         print("[corpus_lemmatisation] /// All the texts have already been lemmatised, so we're good to go!")
         return
 
-    print(f"[corpus_lemmatisation] /// Looks like we need to lemmatise {len(files_to_normalise)} text(s)")
+    print(f"[corpus_lemmatisation] /// Looks like we need to lemmatise {len(files_to_lemmatise)} text(s)")
 
     # Process each file that needs to be lemmatised
-    for idx, (src, dest) in enumerate(files_to_normalise, start=1):
-        progress_bar(len(files_to_normalise), idx)
+    for idx, (src, dest) in enumerate(files_to_lemmatise, start=1):
+        progress_bar(len(files_to_lemmatise), idx)
 
         try:
             # Choose the appropriate reader based on file type
@@ -158,7 +158,7 @@ def corpus_lemmatisation(base_path: str, lit_folder_name: str) -> None:
         except Exception:
             continue
 
-        # Normalise the text content
+        # Lemmatise the text content
         lemmatised_text = text_lemmatisation(text)
 
         # Make sure the output directory exists before writing
@@ -382,6 +382,6 @@ def main_processing(base_path: str, lit_folder_name: str) -> None:
         wholesale_processing_auth1_auth2(base_path, lit_folder_name, n_grams_config, lemmatisation_config)
 
 
-path = os.path.join("/Users", "ivanguseff", "PycharmProjects", "LitSim")
-literature_folder = 'literature'
-main_processing(path, literature_folder)
+# path = os.path.join("/Users", "ivanguseff", "PycharmProjects", "LitSim")
+# literature_folder = 'literature'
+# main_processing(path, literature_folder)

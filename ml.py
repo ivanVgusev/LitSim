@@ -2,7 +2,7 @@ import os
 import statistics
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
+from sklearn.metrics import classification_report
 
 from itertools import product
 from writers_and_readers import txt_linesreader
@@ -34,12 +34,7 @@ def compute_metrics(author1_data: list, author2_data: list, clf=default_clf):
     clf.fit(x_train, y_train)
     y_pred = clf.predict(x_test)
 
-    return (
-        accuracy_score(y_test, y_pred),
-        precision_score(y_test, y_pred),
-        recall_score(y_test, y_pred),
-        confusion_matrix(y_test, y_pred)
-    )
+    return classification_report(y_test, y_pred)
 
 
 def predict(author1_data: list, author2_data: list, x_test: list, clf=default_clf):
@@ -83,35 +78,6 @@ def load_feature_vectors(folder_path: str):
                 author1_author2_data.extend(values)
 
     return aurtor1_author1_data, author1_author2_data
-
-
-def measure_model_performance(author1_author1_data, author1_author2_data, n_trials=100, clf=default_clf):
-    """
-    Measure model performance over multiple trials and compute average metrics.
-
-    :param author1_author1_data: list of lists containing info from the same authors
-    :param author1_author2_data: list of lists containing info from different authors
-    :param author1_author1_data: Samples for label 0
-    :param author1_author2_data: Samples for label 1
-    :param n_trials: Number of times to repeat training/testing
-    :param clf: Classifier object
-    :return: Dictionary with mean accuracy, precision, and recall
-    """
-    accuracy_scores = []
-    precision_scores = []
-    recall_scores = []
-
-    for _ in range(n_trials):
-        acc, prec, rec, _ = compute_metrics(author1_author1_data, author1_author2_data, clf)
-        accuracy_scores.append(acc)
-        precision_scores.append(prec)
-        recall_scores.append(rec)
-
-    return {
-        'accuracy': statistics.mean(accuracy_scores),
-        'precision': statistics.mean(precision_scores),
-        'recall': statistics.mean(recall_scores)
-    }
 
 
 # n = [2, 3, 4]

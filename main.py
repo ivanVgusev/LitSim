@@ -1,5 +1,5 @@
 import os
-from ml import predict
+from ml import predict, best_params_xgboost
 from corpus_processing import text_lemmatisation
 from writers_and_readers import txt_linesreader
 from n_grams import n_grams_main
@@ -53,14 +53,15 @@ def compare_authors(file1_path, file2_path, stats_path, n=3, lemmatise=False):
     stats_path += f'N={n}/'
 
     auth1_data, auth2_data = load_training_data(stats_path)
-    result = predict(auth1_data, auth2_data, test_features)
-    print("0 // same author" if result == [0] else "1 // different author")
-    return result
+    print(best_params_xgboost(auth1_data, auth2_data, test_features))
+    # result = predict(auth1_data, auth2_data, test_features)
+    # print("0 // same author" if result == [0] else "1 // different author")
+    # return result
 
 
 if __name__ == "__main__":
-    test_folder = os.path.join('/', 'Users', 'ivanguseff', 'PycharmProjects', 'LitSim', 'literature_test/')
-    train_folder = os.path.join('/', 'Users', 'ivanguseff', 'PycharmProjects', 'LitSim/')
+    test_folder = os.path.join('LitSim', 'literature_test/')
+    train_folder = os.path.join('LitSim/')
 
     file1 = os.path.join(test_folder, '.txt')
     file2 = os.path.join(test_folder, '.txt')

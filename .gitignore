@@ -178,3 +178,5 @@ Configuration_comparison.rtf
 Configuration_comparison.xlsx
 literature_test/
 ignore/
+temp.py
+.vscode/

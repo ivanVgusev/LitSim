@@ -180,3 +180,7 @@ literature_test/
 ignore/
 temp.py
 .vscode/
+
+literature_lemmatised
+.gitignore
+Configuration_comparison.xlsx
